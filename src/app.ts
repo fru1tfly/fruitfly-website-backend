@@ -21,7 +21,7 @@ app.use(errors());
 
 // static file hosting for frontend
 app.get(/(.*)/, (req, res) => {
-    res.sendFile(path.join(__dirname, "../fruitfly-website/build/index.html"));
+    res.sendFile(path.join(__dirname, "../../fruitfly-website/build/index.html"));
 });
 
 // start server
