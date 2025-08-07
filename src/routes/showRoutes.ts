@@ -5,7 +5,7 @@ import { createShow, getUpcomingShows } from '../controllers/showController';
 const router = Router();
 
 router.get(
-    ['/upcoming', '/upcoming/:showCount'],
+    ['/upcoming'],
     getUpcomingShows
 );
 
