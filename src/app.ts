@@ -20,7 +20,7 @@ app.use('/api/shows', showRoutes);
 app.use(errors());
 
 // static file hosting for frontend
-app.get('*', (req, res) => {
+app.get(/(.*)/, (req, res) => {
     res.sendFile(path.join(__dirname, "../fruitfly-website/build/index.html"));
 });
 
