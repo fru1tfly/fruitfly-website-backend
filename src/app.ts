@@ -6,8 +6,10 @@ import bodyParser from 'body-parser';
 import cors from 'cors';
 import { errors } from 'celebrate';
 import path from 'path';
+import http from 'http'
 
 const app = express();
+const server = http.createServer(app);
 app.use(cors());
 
 // body-parser
@@ -25,9 +27,4 @@ app.get(/(.*)/, (req, res) => {
 });
 
 // start server
-app.listen(portNumber, () => {
-    console.log(`Server running on port ${portNumber}`);
-}).on('error', err => {
-    console.log(err);
-    process.exit(1);
-});
+server.listen(portNumber);
