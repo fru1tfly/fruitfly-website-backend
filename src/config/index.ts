@@ -7,5 +7,6 @@ if(envFound.error) {
 
 process.env.NODE_ENV = process.env.NODE_ENV || 'dev';
 
-const portNumber = parseInt(process.env.SERVER_PORT as string);
-export default portNumber;
+export const portNumber = parseInt(process.env.SERVER_PORT as string);
+export const frontendPath = process.env.REACT_BUILD_PATH as string;
+

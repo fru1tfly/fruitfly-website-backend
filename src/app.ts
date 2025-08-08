@@ -1,4 +1,4 @@
-import portNumber from './config';
+import { portNumber, frontendPath} from './config';
 import userRoutes from './routes/userRoutes';
 import showRoutes from './routes/showRoutes';
 import express from 'express';
@@ -21,9 +21,11 @@ app.use('/api/users', userRoutes);
 app.use('/api/shows', showRoutes);
 app.use(errors());
 
-// static file hosting for frontend
+// static file hosting
+app.use(express.static("public"));
+app.use(express.static(path.join(__dirname, frontendPath)));
 app.get(/(.*)/, (req, res) => {
-    res.sendFile(path.join(__dirname, "../../fruitfly-website/build/index.html"));
+    res.sendFile(path.join(__dirname, `${frontendPath}/index.html`));
 });
 
 // start server
