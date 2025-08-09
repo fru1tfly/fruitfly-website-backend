@@ -2,20 +2,27 @@ import { Show, ShowDTO } from "../models/Show";
 import { db } from "../config/database";
 import { ResultSetHeader, RowDataPacket } from "mysql2/promise";
 import { FruitflyError } from "../config/errors";
-import { sanitize } from "../utils";
+import { sanitize, PartialWithValue } from "../utils";
 
 export class ShowService {
-    private queryBase = `
-        SELECT 
-            Shows.*,
-            Venues.*
-        FROM
-            Shows
-        INNER JOIN
-            Venues
-        ON
-            Shows.venue_id = Venues.id
-    `;
+
+    public async getShowById(id: number): Promise<Show | null> {
+        const query = `
+            ${this.queryBase}
+            WHERE Shows.id = ${id}
+        `;
+
+        try {
+            const [rows] = await db.query<RowDataPacket[]>(query);
+            return rows.length ? this.buildShow(rows[0]) : null;
+        } catch (err) {
+            throw new FruitflyError({
+                name: 'DB_QUERY_ERROR',
+                message: err instanceof Error ? err.message : `An error occurred while retrieving show with id '${id}'`,
+                status: 500
+            });
+        }
+    }
 
     public async getUpcomingShows(showCount:number = 10): Promise<Show[]> {
         const query = `
@@ -28,32 +35,12 @@ export class ShowService {
 
         try {
             const [rows] = await db.query<RowDataPacket[]>(query);
-            return rows.map(row => ({
-                id: row.id,
-
-                showName: row.showName,
-                venueName: row.venueName,
-
-                date: row.date,
-                imgUrl: row.imgUrl,
-                otherActs: row.otherActs.split(';'),
-
-                address: row.address,
-                city: row.city,
-                ageRestriction: row.ageRestriction,
-
-                doorsTime: row.doorsTime,
-                showTime: row.showTime,
-                setTime: row.setTime,
-                
-                ticketUrl: row.ticketUrl,
-                price: row.price
-            }));
+            return rows.map(this.buildShow);
         } catch (err) {
             throw new FruitflyError({
                 name: 'DB_QUERY_ERROR',
                 message: err instanceof Error ? err.message : `An error occurred while retrieving upcoming shows`,
-                cause: err
+                status: 500
             });
         }
     }
@@ -73,8 +60,76 @@ export class ShowService {
             throw new FruitflyError({
                 name: 'DB_QUERY_ERROR',
                 message: err instanceof Error ? err.message : `An error occurred while creating a new show`,
-                cause: err
+                status: 500
             });
         }
+    }
+
+    public async updateShow(showData: PartialWithValue<ShowDTO, 'id'>): Promise<number> {
+        try {
+            const sanitizedShowData = sanitize(showData);
+
+            await db.query<ResultSetHeader>(`
+                UPDATE Shows 
+                SET ${Object.entries(sanitizedShowData).map(([key, value]) => `${key} = ${value}`)} 
+                WHERE id = ${showData.id}
+            `);
+
+            return showData.id;
+        } catch (err) {
+            throw new FruitflyError({
+                name: 'DB_QUERY_ERROR',
+                message: err instanceof Error ? err.message : `An error occurred while updating show with id '${showData.id}'`,
+                status: 500
+            }); 
+        }
+    }
+
+    public async deleteShow(showId: number) {
+        try {
+            await db.query<ResultSetHeader>(`DELETE FROM Shows WHERE id = ${showId}`);
+        } catch (err) {
+            throw new FruitflyError({
+                name: 'DB_QUERY_ERROR',
+                message: err instanceof Error ? err.message : `An error occurred while deleting show with id '${showId}'`,
+                status: 500
+            }); 
+        }
+    }
+
+    private queryBase = `
+        SELECT 
+            Shows.*,
+            Venues.*
+        FROM
+            Shows
+        INNER JOIN
+            Venues
+        ON
+            Shows.venue_id = Venues.id
+    `;
+
+    private buildShow(row: RowDataPacket): Show {
+        return {
+            id: row.id,
+
+            showName: row.showName,
+            venueName: row.venueName,
+
+            date: row.date,
+            imgUrl: row.imgUrl,
+            otherActs: row.otherActs.split(';'),
+
+            address: row.address,
+            city: row.city,
+            ageRestriction: row.ageRestriction,
+
+            doorsTime: row.doorsTime,
+            showTime: row.showTime,
+            setTime: row.setTime,
+            
+            ticketUrl: row.ticketUrl,
+            price: row.price
+        };
     }
 }

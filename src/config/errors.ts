@@ -9,20 +9,24 @@ type ErrorName =
 export class FruitflyError extends Error {
     name: ErrorName;
     message: string;
-    cause: any;
+    status: number;
     
-    constructor({name, message, cause}: {name: ErrorName, message: string, cause?: any}) {
+    constructor({name, message, status}: {name: ErrorName, message: string, status: number}) {
         super();
 
         this.name = name;
         this.message = message;
-        this.cause = cause;
+        this.status = status;
     }
 }
 
-export const sendError = (res: Response, err: any = null, status: number = 500, message: string = 'Unknown error') => {
-    res.status(status).json({
-        name: err instanceof Error ? err.name : 'ERROR',
-        message: err instanceof Error ? err.message : message
-    });
+const defaultErrorStatus = 500;
+export const defaultError = new FruitflyError({
+    name: 'UNKNOWN_ERROR',
+    message: 'An unknown error occurred',
+    status: defaultErrorStatus
+});
+
+export const sendError = (res: Response, err: Error) => {
+    res.status(err instanceof FruitflyError ? err.status : defaultErrorStatus).json(err);
 }

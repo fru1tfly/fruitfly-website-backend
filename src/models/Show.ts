@@ -25,6 +25,8 @@ export interface Show {
 }
 
 export interface ShowDTO {
+    id: number;
+
     venue_id: string;
     showName: string;
 

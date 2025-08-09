@@ -1,8 +1,18 @@
 import { Request, Response } from 'express';
 import { ShowService } from '../services/showService';
-import { getSession } from '../utils';
+import { validateSession } from '../utils';
+import { sendError, defaultError } from '../config/errors';
 
 const showService = new ShowService();
+
+export const getShowById = async (req: Request, res: Response) => {
+    try {
+        const show = await showService.getShowById(req.body.id);
+        res.status(200).json({ show: show });
+    } catch (err) {
+        sendError(res, err instanceof Error ? err : defaultError);
+    }
+}
 
 export const getUpcomingShows = async (req: Request, res: Response) => {
     try {
@@ -19,21 +29,44 @@ export const getUpcomingShows = async (req: Request, res: Response) => {
         });
 
     } catch (err) {
-        res.status(500).json({
-            name: err instanceof Error ? err.name : 'ERROR',
-            message: err instanceof Error ? err.message : 'Unknown error'
-        });
+        sendError(res, err instanceof Error ? err : defaultError);
     }
 }
 
 export const createShow = async (req: Request, res: Response) => {
     try {
-        const session = getSession(req.headers.token as string);
+        validateSession(req.headers.token as string);
+        
+        const newShowId = await showService.createShow(req.body);
+        const newShowDetails = await showService.getShowById(newShowId); 
+        res.status(200).json({ newShowId: newShowId, show: newShowDetails });
         
     } catch (err) {
-        res.status(401).json({
-            name: err instanceof Error ? err.name : 'ERROR',
-            message: err instanceof Error ? err.message : 'Unknown error'
-        });
+        sendError(res, err instanceof Error ? err : defaultError);
+    }
+}
+
+export const updateShow = async (req: Request, res: Response) => {
+    try {
+        validateSession(req.headers.token as string);
+        
+        const updatedShowId = await showService.updateShow(req.body);
+        const updatedShowDetails = await showService.getShowById(updatedShowId); 
+        res.status(200).json({ updatedShowId: updatedShowId, show: updatedShowDetails });
+        
+    } catch (err) {
+        sendError(res, err instanceof Error ? err : defaultError);
+    }
+}
+
+export const deleteShow = async (req: Request, res: Response) => {
+    try {
+        validateSession(req.headers.token as string);
+        
+        await showService.deleteShow(req.body.id);
+        res.status(200).json({ message: 'Show deleted successfully' });
+        
+    } catch (err) {
+        sendError(res, err instanceof Error ? err : defaultError);
     }
 }

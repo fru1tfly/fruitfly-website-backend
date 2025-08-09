@@ -20,7 +20,7 @@ export class UserService {
             throw new FruitflyError({
                 name: 'DB_QUERY_ERROR',
                 message: err instanceof Error ? err.message : `An error occurred while retrieving user '${username}'`,
-                cause: err
+                status: 500
             });
         }
     }
@@ -35,7 +35,7 @@ export class UserService {
             throw new FruitflyError({
                 name: 'DB_QUERY_ERROR',
                 message: err instanceof Error ? err.message : `An error occurred while attempting to create a new user`,
-                cause: err
+                status: 500
             });
         }
     }

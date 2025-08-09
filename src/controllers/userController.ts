@@ -4,7 +4,7 @@ import session from "express-session";
 import { User } from '../models/User';
 import { UserService } from '../services/userService';
 import { getHashedPassword, comparePassword } from '../config/bcrypt';
-import { sendError } from '../config/errors';
+import { defaultError, FruitflyError, sendError } from '../config/errors';
 
 declare module 'express-session' {
     interface SessionData {
@@ -30,18 +30,26 @@ export const createUser = async (req: Request, res: Response) => {
 
             await userService.addNewUser(newUser);
         } else {
-            res.status(400).json({ message: `Another user with the username '${username}' already exists.`});
+            throw new FruitflyError({
+                name: 'BAD_AUTH_ERROR',
+                message: `Another user with the username '${username}' already exists.`,
+                status: 400
+            });
         }
 
     } catch (err) {
-        sendError(res, err, 500);
+        sendError(res, err instanceof Error ? err : defaultError);
     }
 }
 
 export const loginUser = async (req: Request, res: Response) => {
-    const errorMessage = 'Incorrect username of password';
+    const badAuthError = new FruitflyError({
+        name: 'BAD_AUTH_ERROR',
+        message: 'Incorrect username or password',
+        status: 400
+    });
+
     try {
-        console.log(req.body);
         const { username, password } = req.body;
 
         const givenUser = await userService.getUserByUsername(username);
@@ -56,14 +64,14 @@ export const loginUser = async (req: Request, res: Response) => {
                     token: token
                 });
             } else {
-                sendError(res, null, 400, errorMessage);
+                throw badAuthError;
             }
         } else {
-            sendError(res, null, 400, errorMessage);
+            throw badAuthError;
         }
 
     } catch (err) {
-        sendError(res, err, 500);
+        sendError(res, err instanceof Error ? err : defaultError);
     }
 }
 
@@ -71,6 +79,6 @@ export const logoutUser = async (req: Request, res: Response) => {
     try {
 
     } catch (err) {
-        sendError(res, err, 500);
+        sendError(res, err instanceof Error ? err : defaultError);
     }
 }

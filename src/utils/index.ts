@@ -1,6 +1,8 @@
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { FruitflyError } from "../config/errors";
 
+export type PartialWithValue<T, K extends keyof T> = Partial<T> & Pick<T, K>;
+
 export const sanitize = <T extends Object>(obj: T) => {
 
     let result: {[key: string]: any} = {};
@@ -14,7 +16,7 @@ export const sanitize = <T extends Object>(obj: T) => {
     return result;
 }
 
-export const getSession = (token: string): JwtPayload | string => {
+export const validateSession = (token: string): JwtPayload | string => {
     try {
         const decodedToken = jwt.verify(
             token,
@@ -25,8 +27,8 @@ export const getSession = (token: string): JwtPayload | string => {
     } catch (err) {
         throw new FruitflyError({
             name: 'BAD_AUTH_ERROR',
-            message: 'Invalid auth token',
-            cause: err
+            message: `Session expired or invalid, please log in again${err instanceof Error ? `: ${err.message}` : ''}`,
+            status: 400
         });
     }
 }
