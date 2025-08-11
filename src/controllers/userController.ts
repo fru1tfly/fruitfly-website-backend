@@ -15,6 +15,16 @@ declare module 'express-session' {
 
 const userService = new UserService();
 
+const sendToken = async (res: Response, user: User) => {
+    const token = userService.generateToken(user);
+    Reflect.deleteProperty(user, 'password');
+
+    res.status(200).json({ 
+        message: 'Login successful',
+        token: token
+    });
+}
+
 export const createUser = async (req: Request, res: Response) => {
     try {
         const { username, password } = req.body;
@@ -29,6 +39,10 @@ export const createUser = async (req: Request, res: Response) => {
             };
 
             await userService.addNewUser(newUser);
+            const createdUser = await userService.getUserByUsername(username);
+            if(createdUser) { 
+                sendToken(res, createdUser);
+            }
         } else {
             throw new FruitflyError({
                 name: 'BAD_AUTH_ERROR',
@@ -56,13 +70,7 @@ export const loginUser = async (req: Request, res: Response) => {
         if (givenUser) {
             const isCorrectPassword = await comparePassword(password, givenUser.password);
             if (isCorrectPassword) {
-                const token = userService.generateToken(givenUser);
-                Reflect.deleteProperty(givenUser, 'password');
-
-                res.status(200).json({ 
-                    message: 'Login successful',
-                    token: token
-                });
+                sendToken(res, givenUser);
             } else {
                 throw badAuthError;
             }
