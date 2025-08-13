@@ -4,6 +4,8 @@ type ErrorName =
     | 'DB_QUERY_ERROR'
     | 'BCRYPT_ERROR'
     | 'BAD_AUTH_ERROR'
+    | 'BAD_DATA_ERROR'
+    | 'FILE_SYSTEM_ERROR'
     | 'UNKNOWN_ERROR';
 
 export class FruitflyError extends Error {

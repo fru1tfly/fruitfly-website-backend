@@ -6,6 +6,19 @@ import { sanitize, PartialWithValue } from "../utils";
 
 export class ShowService {
 
+    public async getAllShows(): Promise<Show[]> {
+        try {
+            const [rows] = await db.query<RowDataPacket[]>(this.queryBase);
+            return rows.map(this.buildShow);
+        } catch (err) {
+            throw new FruitflyError({
+                name: 'DB_QUERY_ERROR',
+                message: err instanceof Error ? err.message : `An error occurred while retrieving all shows`,
+                status: 500
+            })
+        }
+    }
+
     public async getShowById(id: number): Promise<Show | null> {
         const query = `
             ${this.queryBase}

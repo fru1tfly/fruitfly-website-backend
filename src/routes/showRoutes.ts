@@ -5,9 +5,15 @@ import * as ShowController from '../controllers/showController';
 const router = Router();
 
 router.get(
+    '/',
+    ShowController.getAllShows
+);
+
+router.get(
     ['/upcoming', '/upcoming/:showCount'],
     ShowController.getUpcomingShows
 );
+
 
 const optionalShowFields = {
     showName: Joi.string(),

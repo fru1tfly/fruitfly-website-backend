@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { celebrate, Joi, Segments } from 'celebrate';
-import { createUser, loginUser, logoutUser } from '../controllers/userController';
+import * as UserController from '../controllers/userController';
 
 const router = Router();
 
@@ -13,7 +13,7 @@ router.post(
             password: Joi.string().required()
         })
     }), 
-    createUser
+    UserController.createUser
 );
 
 router.post(
@@ -24,12 +24,12 @@ router.post(
             password: Joi.string().required()
         })
     }), 
-    loginUser
+    UserController.loginUser
 );
 
 router.post(
     '/logout', 
-    logoutUser
+    UserController.logoutUser
 );
 
 export default router;

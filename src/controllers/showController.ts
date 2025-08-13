@@ -5,6 +5,15 @@ import { sendError, defaultError } from '../config/errors';
 
 const showService = new ShowService();
 
+export const getAllShows = async (req: Request, res: Response) => {
+    try {
+        const shows = await showService.getAllShows();
+        res.status(200).json(shows);
+    } catch (err) {
+        sendError(res, err instanceof Error ? err : defaultError);
+    }
+}
+
 export const getShowById = async (req: Request, res: Response) => {
     try {
         const show = await showService.getShowById(req.body.id);
