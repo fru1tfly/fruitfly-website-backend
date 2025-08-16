@@ -40,3 +40,10 @@ export const validateSession = (token: string): JwtPayload | string => {
         });
     }
 }
+
+export const normalizeDate = (date: string) => {
+    console.log(date);
+    const normalizedDate = new Date(date);
+    normalizedDate.setMinutes(normalizedDate.getMinutes() + normalizedDate.getTimezoneOffset());
+    return normalizedDate.toISOString().split('T')[0];
+}

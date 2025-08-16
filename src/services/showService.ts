@@ -2,7 +2,7 @@ import { Show, ShowDTO } from "../models/Show";
 import { db } from "../config/database";
 import { ResultSetHeader, RowDataPacket } from "mysql2/promise";
 import { FruitflyError } from "../config/errors";
-import { sanitize, PartialWithValue } from "../utils";
+import { sanitize, PartialWithValue, normalizeDate } from "../utils";
 
 export class ShowService {
 
@@ -135,6 +135,7 @@ export class ShowService {
     `;
 
     private buildShow(row: RowDataPacket): Show {
+        
         return {
             id: row.id,
             venue_id: row.venue_id,
@@ -142,7 +143,7 @@ export class ShowService {
             showName: row.showName,
             venueName: row.venueName,
 
-            date: row.date,
+            date: normalizeDate(row.date),
             imgUrl: row.imgUrl,
             otherActs: row.otherActs ? row.otherActs.split(';') : '',
 
