@@ -48,7 +48,7 @@ export const createShow = async (req: Request, res: Response) => {
         
         const newShowId = await showService.createShow(req.body);
         const newShowDetails = await showService.getShowById(newShowId); 
-        res.status(200).json({ newShowId: newShowId, show: newShowDetails });
+        res.status(200).json({ id: newShowId, item: newShowDetails });
         
     } catch (err) {
         sendError(res, err instanceof Error ? err : defaultError);
@@ -63,7 +63,7 @@ export const updateShow = async (req: Request, res: Response) => {
         
         const updatedShowId = await showService.updateShow(req.body);
         const updatedShowDetails = await showService.getShowById(updatedShowId); 
-        res.status(200).json({ updatedShowId: updatedShowId, show: updatedShowDetails });
+        res.status(200).json({ id: updatedShowId, item: updatedShowDetails });
         
     } catch (err) {
         sendError(res, err instanceof Error ? err : defaultError);

@@ -13,7 +13,7 @@ export const sanitize = <T extends Object>(obj: T) => {
                 if (value === '') {
                     result[key] = null;
                 } else {
-                    result[key] = value.replace(/['"]/g, '\\$&');
+                    result[key] = value;
                 }
             } else {
                 result[key] = value;

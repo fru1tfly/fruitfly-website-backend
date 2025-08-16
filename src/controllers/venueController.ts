@@ -33,9 +33,9 @@ export const createVenue = async (req: Request, res: Response) => {
     try {
         validateSession(req.headers.token as string);
         
-        const newShowId = await venueService.createVenue(req.body);
-        const newShowDetails = await venueService.getVenueById(newShowId); 
-        res.status(200).json({ newShowId: newShowId, show: newShowDetails });
+        const newVenueId = await venueService.createVenue(req.body);
+        const newVenueDetails = await venueService.getVenueById(newVenueId); 
+        res.status(200).json({ id: newVenueId, item: newVenueDetails });
         
     } catch (err) {
         sendError(res, err instanceof Error ? err : defaultError);
@@ -46,9 +46,9 @@ export const updateVenue = async (req: Request, res: Response) => {
     try {
         validateSession(req.headers.token as string);
 
-        const updatedShowId = await venueService.updateVenue(req.body);
-        const updatedShowDetails = await venueService.getVenueById(updatedShowId); 
-        res.status(200).json({ updatedShowId: updatedShowId, show: updatedShowDetails });
+        const updatedVenueId = await venueService.updateVenue(req.body);
+        const updatedVenueDetails = await venueService.getVenueById(updatedVenueId); 
+        res.status(200).json({ id: updatedVenueId, item: updatedVenueDetails });
         
     } catch (err) {
         sendError(res, err instanceof Error ? err : defaultError);

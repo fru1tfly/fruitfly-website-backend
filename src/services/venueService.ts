@@ -87,7 +87,7 @@ export class VenueService {
                 SET ${Object.entries(sanitizedVenueData).map(([key, value]) => {
 
                     if (typeof value === "string")
-                        return `${key} = '${value}'`
+                        return `${key} = '${value.replace(/[']/g, '\\$&')}'`
                     else
                         return `${key} = ${value}`
                 })} 

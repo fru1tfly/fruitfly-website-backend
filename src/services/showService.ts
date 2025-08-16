@@ -85,14 +85,15 @@ export class ShowService {
             const query = `
                 UPDATE Shows 
                 SET ${Object.entries(sanitizedShowData).map(([key, value]) => {
-
                     if (typeof value === "string")
-                        return `${key} = '${value}'`
+                        return `${key} = '${value.replace(/[']/g, '\\$&')}'`
                     else
                         return `${key} = ${value}`
                 })} 
                 WHERE id = ${showData.id}
             `;
+
+            console.log(query);
 
             await db.query<ResultSetHeader>(query);
 
