@@ -1,62 +1,64 @@
-import { Router } from 'express';
 import { celebrate, Joi, Segments } from 'celebrate';
-import * as ShowController from '../controllers/showController';
+import { Router } from 'express';
+import * as VenueController from '../controllers/venueController';
 
 const router = Router();
 
 router.get(
     '/',
-    ShowController.getAllShows
+    celebrate({
+        [Segments.HEADERS]: Joi.object({
+            token: Joi.string().required()
+        }).unknown()
+    }),
+    VenueController.getAllVenues
 );
 
 router.get(
-    ['/upcoming', '/upcoming/:showCount'],
-    ShowController.getUpcomingShows
+    ['/search/', '/search/:searchTerm'],
+    celebrate({
+        [Segments.HEADERS]: Joi.object({
+            token: Joi.string().required()
+        }).unknown()
+    }),
+    VenueController.getFromSearchTerm
 );
 
-
-const optionalShowFields = {
-    showName: Joi.string(),
-    imgUrl: Joi.string().uri({ allowRelative: true }),
-    otherActs: Joi.string().allow(''),
-    doorsTime: Joi.string(),
-    showTime: Joi.string(),
-    setTime: Joi.string(),
-    ticketUrl: Joi.string(),
-    price: Joi.string()
+const optionalVenueFields = {
+    address: Joi.string(),
+    city: Joi.string(),
+    ageRestriction: Joi.string()
 };
 
 router.post(
     '/create',
     celebrate({
         [Segments.BODY]: Joi.object({
-            ...optionalShowFields,
-            venue_id: Joi.number().required(),
-            date: Joi.string().required()
+            ...optionalVenueFields,
+            venueName: Joi.string().required()
         }),
         // requires authentication
         [Segments.HEADERS]: Joi.object({
             token: Joi.string().required()
         }).unknown()
     }),
-    ShowController.createShow
+    VenueController.createVenue
 );
 
 router.post(
     '/edit',
     celebrate({
         [Segments.BODY]: Joi.object({
-            ...optionalShowFields,
+            ...optionalVenueFields,
             id: Joi.number().required(),
-            venue_id: Joi.number(),
-            date: Joi.string()
+            venueName: Joi.string()
         }),
         // requires authentication
         [Segments.HEADERS]: Joi.object({
             token: Joi.string().required()
         }).unknown()
     }),
-    ShowController.updateShow
+    VenueController.updateVenue
 );
 
 router.delete(
@@ -70,7 +72,7 @@ router.delete(
             token: Joi.string().required()
         }).unknown()
     }),
-    ShowController.deleteShow
+    VenueController.deleteVenue
 );
 
 export default router;

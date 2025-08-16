@@ -64,7 +64,7 @@ export class ShowService {
             const showKeys = Object.keys(sanitizedShowData).join();
 
             const [result] = await db.query<ResultSetHeader>(
-                `INSERT INTO Shows (${showKeys}) VALUES (${[...Array(showKeys.length)].map(() => '?').join()})`,
+                `INSERT INTO Shows (${showKeys}) VALUES (${[...Array(Object.keys(sanitizedShowData).length)].map(() => '?').join()})`,
                 Object.values(sanitizedShowData)
             );
 
@@ -80,15 +80,23 @@ export class ShowService {
 
     public async updateShow(showData: PartialWithValue<ShowDTO, 'id'>): Promise<number> {
         try {
+            const showId = showData.id;
             const sanitizedShowData = sanitize(showData);
-
-            await db.query<ResultSetHeader>(`
+            const query = `
                 UPDATE Shows 
-                SET ${Object.entries(sanitizedShowData).map(([key, value]) => `${key} = ${value}`)} 
-                WHERE id = ${showData.id}
-            `);
+                SET ${Object.entries(sanitizedShowData).map(([key, value]) => {
 
-            return showData.id;
+                    if (typeof value === "string")
+                        return `${key} = '${value}'`
+                    else
+                        return `${key} = ${value}`
+                })} 
+                WHERE id = ${showData.id}
+            `;
+
+            await db.query<ResultSetHeader>(query);
+
+            return showId;
         } catch (err) {
             throw new FruitflyError({
                 name: 'DB_QUERY_ERROR',
@@ -110,10 +118,14 @@ export class ShowService {
         }
     }
 
-    private queryBase = `
+    private queryBase:string = `
         SELECT 
             Shows.*,
-            Venues.*
+            Venues.venueName,
+            Venues.address,
+            Venues.defaultImgUrl,
+            Venues.city,
+            Venues.ageRestriction
         FROM
             Shows
         INNER JOIN
@@ -125,14 +137,16 @@ export class ShowService {
     private buildShow(row: RowDataPacket): Show {
         return {
             id: row.id,
+            venue_id: row.venue_id,
 
             showName: row.showName,
             venueName: row.venueName,
 
             date: row.date,
             imgUrl: row.imgUrl,
-            otherActs: row.otherActs.split(';'),
+            otherActs: row.otherActs ? row.otherActs.split(';') : '',
 
+            defaultImgUrl: row.defaultImgUrl,
             address: row.address,
             city: row.city,
             ageRestriction: row.ageRestriction,

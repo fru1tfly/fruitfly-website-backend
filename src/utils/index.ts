@@ -8,8 +8,16 @@ export const sanitize = <T extends Object>(obj: T) => {
     let result: {[key: string]: any} = {};
 
     for(const [key, value] of Object.entries(obj)) {
-        if(value !== null) {
-            result[key] = value;
+        if(value !== null && key !== 'id') {
+            if(typeof value === "string") {
+                if (value === '') {
+                    result[key] = null;
+                } else {
+                    result[key] = value.replace(/['"]/g, '\\$&');
+                }
+            } else {
+                result[key] = value;
+            }
         } 
     }
 

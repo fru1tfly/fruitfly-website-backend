@@ -58,6 +58,8 @@ export const createShow = async (req: Request, res: Response) => {
 export const updateShow = async (req: Request, res: Response) => {
     try {
         validateSession(req.headers.token as string);
+
+        console.log(req.body);
         
         const updatedShowId = await showService.updateShow(req.body);
         const updatedShowDetails = await showService.getShowById(updatedShowId); 
@@ -72,7 +74,7 @@ export const deleteShow = async (req: Request, res: Response) => {
     try {
         validateSession(req.headers.token as string);
         
-        await showService.deleteShow(req.body.id);
+        await showService.deleteShow(parseInt(req.params.id));
         res.status(200).json({ message: 'Show deleted successfully' });
         
     } catch (err) {

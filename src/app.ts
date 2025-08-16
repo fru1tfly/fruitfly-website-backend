@@ -3,6 +3,7 @@ import { portNumber, frontendPath } from './config';
 import userRoutes from './routes/userRoutes';
 import showRoutes from './routes/showRoutes';
 import fileRoutes from './routes/fileRoutes';
+import venueRoutes from './routes/venueRoutes';
 
 import express from 'express';
 import bodyParser from 'body-parser';
@@ -23,11 +24,11 @@ app.use(bodyParser.json());
 app.use(express.static("public"));
 app.use(express.static(path.join(__dirname, frontendPath)));
 
-
 // add routes
 app.use('/api/users', userRoutes);
 app.use('/api/shows', showRoutes);
 app.use('/api/files', fileRoutes);
+app.use('/api/venues', venueRoutes);
 app.use(errors());
 
 app.get(/(.*)/, (req, res) => {
