@@ -21,7 +21,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 // static file hosting
-app.use(express.static("public"));
+app.use(express.static(process.env.PUBLIC_FOLDER as string));
 app.use(express.static(path.join(__dirname, frontendPath)));
 
 // add routes

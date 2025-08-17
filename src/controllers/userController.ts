@@ -27,7 +27,15 @@ const sendToken = async (res: Response, user: User) => {
 
 export const createUser = async (req: Request, res: Response) => {
     try {
-        const { username, password } = req.body;
+        const { username, password, confirm } = req.body;
+
+        if (password !== confirm) {
+            throw new FruitflyError({
+                name: 'BAD_AUTH_ERROR',
+                message: `'Confirm' must match 'Password''`,
+                status: 400
+            });
+        }
 
         const existingUser = await userService.getUserByUsername(username);
         if (!existingUser) {
