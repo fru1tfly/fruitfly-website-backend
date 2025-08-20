@@ -41,7 +41,7 @@ export class ShowService {
         const query = `
             ${this.queryBase}
             WHERE
-                Shows.date > CURRENT_DATE
+                Shows.date >= CURRENT_DATE
             ORDER BY Shows.date ASC
             LIMIT ${showCount}
         `;
