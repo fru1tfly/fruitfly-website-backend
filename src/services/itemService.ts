@@ -35,14 +35,13 @@ export class ItemService<T extends DatabaseItem, DTO extends DatabaseItem = neve
      */
     public async getAll(display: ItemDisplay): Promise<T[]> {
         try {
-            console.log('asdfasdf');
             let queryCondition = '';
+            console.log(display.filters);
             if (display.filters) {
                 const filterKeys = Object.keys(display.filters);
                 if (filterKeys.length > 0) {
-                    queryCondition += `WHERE `;
                     for(const key of filterKeys) {
-                        queryCondition += `AND ${key} LIKE '%${display.filters[key]}%'`
+                        queryCondition += `${queryCondition === '' ? 'WHERE' : 'AND'} ${key} LIKE '%${display.filters[key]}%'`
                     }
                 }
             }
@@ -147,15 +146,7 @@ export class ItemService<T extends DatabaseItem, DTO extends DatabaseItem = neve
      * @description Delete a record in the database
      * @param id The ID of the record to delete
      */
-    public async delete(id: number): Promise<void> {
-        try {
+    public async delete(id: number) {
             await db.query<ResultSetHeader>(`DELETE FROM ${this.tableName} WHERE id = ${id}`);
-        } catch (err) {
-            throw new FruitflyError({
-                name: 'DB_QUERY_ERROR',
-                message: err instanceof Error ? err.message : `An error occurred while deleting ${this.itemName} with id '${id}'`,
-                status: 500
-            }); 
-        }
     }
 }

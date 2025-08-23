@@ -3,22 +3,22 @@ import { ItemService } from "../services/itemService";
 import { DatabaseItem } from "../models/DatabaseItem";
 import { defaultError, sendError } from "../config/errors";
 import { ItemDisplay } from "../models/ItemDisplay";
-import { extractFromUrlQuery, validateSession } from "../utils";
+import { validateSession } from "../utils";
 
 export abstract class ItemController<T extends DatabaseItem, DTO extends DatabaseItem = never> {
-    abstract service: ItemService<T, DTO>;
+    protected abstract readonly service: ItemService<T, DTO>;
+    protected abstract readonly filterKeys: (keyof T)[];
 
     public async getAll(req: Request, res: Response): Promise<void> {
         const params = req.query;
-        const display = extractFromUrlQuery<ItemDisplay>(params);
-        const filters = extractFromUrlQuery<T>(params);
+        const display = ItemDisplay.extractFromUrlQuery(params);
+        const filters = this.extractFromUrlQuery(params);
         display.filters = {...filters};
-        console.log(display);
 
         try {
             validateSession(req.headers.token as string);
 
-            const result: T[] = await this.service.getAll({});
+            const result: T[] = await this.service.getAll(display);
             res.status(200).json(result);
         } catch (err) {
             sendError(res, err instanceof Error ? err : defaultError);
@@ -53,11 +53,23 @@ export abstract class ItemController<T extends DatabaseItem, DTO extends Databas
     public async delete(req: Request, res: Response): Promise<void> {
         try {
             validateSession(req.headers.token as string);
+            console.log(req.params.id);
             
             await this.service.delete(parseInt(req.params.id));
-            res.status(200);
+            res.status(200).json({ message: 'deleted successfully' });
         } catch (err) {
             sendError(res, err instanceof Error ? err : defaultError);
         }
+    }
+
+    protected extractFromUrlQuery = <T extends object>(query: Record<string, unknown>): T => {
+        const result: Partial<T> = {};
+        for (const key of this.filterKeys) {
+            const value = query[key as string];
+            if (typeof value === "string") {
+                result[key as keyof T] = value as any;
+            }
+        }
+        return result as T;
     }
 }

@@ -46,18 +46,3 @@ export const normalizeDate = (date: string) => {
     normalizedDate.setMinutes(normalizedDate.getMinutes() + normalizedDate.getTimezoneOffset());
     return normalizedDate.toISOString().split('T')[0];
 }
-
-export const extractFromUrlQuery = <T extends object>(
-    query: Record<string, unknown>,
-): T => {
-    const result: object = {};
-    for (const key of Object.keys(query)) {
-        if (key in ({} as T)) {
-            const value = query[key];
-            if (typeof value === "string") {
-                (result as any)[key] = value;
-            }
-        }
-    }
-    return result as T;
-}

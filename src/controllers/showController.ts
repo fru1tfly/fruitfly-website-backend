@@ -1,11 +1,17 @@
 import { Request, Response } from 'express';
 import { ShowService } from '../services/showService';
-import { sendError, defaultError } from '../config/errors';
 import { ItemController } from './itemController';
 import { Show, ShowDTO } from '../models/Show';
+import { sendError, defaultError } from '../config/errors';
 
 export class ShowController extends ItemController<Show, ShowDTO> {
-    service = new ShowService();
+    protected readonly service = new ShowService();
+    protected readonly filterKeys: (keyof Show)[] = [
+        "city",
+        "otherActs",
+        "showName",
+        "venueName"
+    ];
 
     constructor() {
         super();
@@ -13,6 +19,7 @@ export class ShowController extends ItemController<Show, ShowDTO> {
         this.create = this.create.bind(this);
         this.update = this.update.bind(this);
         this.delete = this.delete.bind(this);
+        this.getUpcomingShows = this.getUpcomingShows.bind(this);
     }
 
     public async getUpcomingShows(req: Request, res: Response) {

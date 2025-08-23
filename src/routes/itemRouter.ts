@@ -7,10 +7,17 @@ export class ItemRouter<T extends DatabaseItem, DTO extends DatabaseItem = never
     public router = Router();
     public controller: ItemController<T, DTO>;
 
-    public optionalFields = {};
-
-    constructor(controller: ItemController<T, DTO>) {
+    constructor(
+        controller: ItemController<T, DTO>,
+        requiredFields: { [key: string]: any } = {},
+        optionalFields: { [key: string]: any } = {}
+    ) {
         this.controller = controller;
+
+        const requiredFieldsWithRequirement: { [key: string]: any} = {};
+        for(const key of Object.keys(requiredFields)) {
+            requiredFieldsWithRequirement[key] = requiredFields[key].required();
+        }
         
         this.router.get(
             '/',
@@ -27,7 +34,8 @@ export class ItemRouter<T extends DatabaseItem, DTO extends DatabaseItem = never
             '/create',
             celebrate({
                 [Segments.BODY]: Joi.object({
-                    ...this.optionalFields,
+                    ...requiredFieldsWithRequirement,
+                    ...optionalFields,
                     venueName: Joi.string().required()
                 }),
                 // requires authentication
@@ -42,7 +50,8 @@ export class ItemRouter<T extends DatabaseItem, DTO extends DatabaseItem = never
             '/edit',
             celebrate({
                 [Segments.BODY]: Joi.object({
-                    ...this.optionalFields,
+                    ...requiredFields,
+                    ...optionalFields,
                     id: Joi.number().required()
                 }),
                 // requires authentication
