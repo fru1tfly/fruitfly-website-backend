@@ -36,7 +36,6 @@ export class ItemService<T extends DatabaseItem, DTO extends DatabaseItem = neve
     public async getAll(display: ItemDisplay): Promise<T[]> {
         try {
             let queryCondition = '';
-            console.log(display.filters);
             if (display.filters) {
                 const filterKeys = Object.keys(display.filters);
                 if (filterKeys.length > 0) {
@@ -50,8 +49,6 @@ export class ItemService<T extends DatabaseItem, DTO extends DatabaseItem = neve
             if (display.pageSize) queryCondition += `LIMIT ${display.pageSize} `;
             if (display.pageNumber) queryCondition += `OFFSET ${display.pageNumber}`;
 
-            console.log(queryCondition);
-            
             const [rows] = await db.query<(RowDataPacket & T)[]>(`${this.queryBase} ${queryCondition}`);
             return rows.map(this.itemFactory);
         } catch (err) {
@@ -72,7 +69,7 @@ export class ItemService<T extends DatabaseItem, DTO extends DatabaseItem = neve
         try {
             const [rows] = await db.query<(RowDataPacket & T)[]>(`
                 ${this.queryBase} 
-                WHERE id = ${id}
+                WHERE ${this.tableName}.id = ${id}
             `);
 
             return rows.length ? rows[0] : null;

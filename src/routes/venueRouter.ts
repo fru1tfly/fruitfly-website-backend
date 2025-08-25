@@ -6,11 +6,11 @@ import { Joi } from 'celebrate';
 const controller = new VenueController();
 
 const requiredFields = {
-    venueName: Joi.string()
+    venueName: Joi.string(),
+    address: Joi.string()
 };
 
 const optionalFields = {
-    address: Joi.string(),
     city: Joi.string(),
     ageRestriction: Joi.string()
 };

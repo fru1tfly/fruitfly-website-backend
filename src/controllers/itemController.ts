@@ -53,7 +53,6 @@ export abstract class ItemController<T extends DatabaseItem, DTO extends Databas
     public async delete(req: Request, res: Response): Promise<void> {
         try {
             validateSession(req.headers.token as string);
-            console.log(req.params.id);
             
             await this.service.delete(parseInt(req.params.id));
             res.status(200).json({ message: 'deleted successfully' });
