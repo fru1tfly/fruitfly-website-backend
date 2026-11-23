@@ -31,7 +31,7 @@ app.use('/api/files', fileRoutes);
 app.use('/api/venues', venueRoutes);
 app.use(errors());
 
-app.get(/(.*)/, (req, res) => {
+app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, `${frontendPath}/index.html`));
 });
 
